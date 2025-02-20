@@ -1,0 +1,14 @@
+error: optional sqlx feature `time` required for type TIMESTAMPTZ of param #3
+  --> src/main.rs:19:5
+   |
+19 | /     sqlx::query!(
+20 | |         "INSERT INTO groups (id, name, created_at) VALUES ($1, $2, $3)", 
+21 | |         input.id, 
+22 | |         input.name, 
+23 | |         input.created_at.to_sqlx())
+   | |___________________________________^
+   |
+   = note: this error originates in the macro `$crate::sqlx_macros::expand_query` which comes from the expansion of the macro `sqlx::query` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+
+

@@ -1,0 +1,89 @@
+   Compiling jiff-sqlx-poc v0.1.0 (/home/tony/code/jiff-sqlx-poc)
+error: optional sqlx feature `time` required for type TIMESTAMPTZ of param #3
+  --> src/main.rs:20:5
+   |
+20 | /     sqlx::query!(
+21 | |         "INSERT INTO groups (id, name, created_at) VALUES ($1, $2, $3)", 
+22 | |         input.id, 
+23 | |         input.name, 
+24 | |         input.created_at.to_sqlx())
+   | |___________________________________^
+   |
+   = note: this error originates in the macro `$crate::sqlx_macros::expand_query` which comes from the expansion of the macro `sqlx::query` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: optional sqlx feature `time` required for type TIMESTAMPTZ of column #3 ("created_at")
+  --> src/main.rs:30:18
+   |
+30 |     let result = sqlx::query_as!(DbRow, "SELECT id, name, created_at FROM groups")
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::sqlx_macros::expand_query` which comes from the expansion of the macro `sqlx::query_as` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused import: `jiff_sqlx::ToSqlx`
+ --> src/main.rs:2:5
+  |
+2 | use jiff_sqlx::ToSqlx;
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+error[E0277]: the trait bound `jiff_sqlx::Timestamp: From<()>` is not satisfied
+  --> src/main.rs:30:18
+   |
+30 |     let result = sqlx::query_as!(DbRow, "SELECT id, name, created_at FROM groups")
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `From<()>` is not implemented for `jiff_sqlx::Timestamp`, which is required by `(): Into<_>`
+   |
+   = help: the trait `From<jiff::Timestamp>` is implemented for `jiff_sqlx::Timestamp`
+   = help: for that trait implementation, expected `jiff::Timestamp`, found `()`
+   = note: required for `()` to implement `Into<jiff_sqlx::Timestamp>`
+   = note: this error originates in the macro `$crate::sqlx_macros::expand_query` which comes from the expansion of the macro `sqlx::query_as` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> src/main.rs:46:5
+   |
+46 |       save(AppObject {
+   |  _____^^^^_-
+47 | |         id: "XYZ".into(),
+48 | |         name: "ABC".into(),
+49 | |         created_at: Timestamp::now()
+50 | |     }, &db).await.unwrap();
+   | |_____- expected `&AppObject`, found `AppObject`
+   |
+note: expected `Pool<Postgres>`, found `&Pool<Postgres>`
+  --> src/main.rs:50:8
+   |
+50 |     }, &db).await.unwrap();
+   |        ^^^
+   = note: expected struct `Pool<_>`
+           found reference `&Pool<_>`
+note: function defined here
+  --> src/main.rs:19:10
+   |
+19 | async fn save(input: &AppObject, db: PgPool) -> Result<(), sqlx::Error> {
+   |          ^^^^ -----------------  ----------
+help: consider borrowing here
+   |
+46 |     save(&AppObject {
+   |          +
+help: consider removing the borrow
+   |
+50 -     }, &db).await.unwrap();
+50 +     }, db).await.unwrap();
+   |
+
+error[E0308]: mismatched types
+  --> src/main.rs:53:5
+   |
+44 | async fn main() {
+   |                - expected `()` because of default return type
+...
+53 |     dbg!(fetched)
+   |     ^^^^^^^^^^^^^ expected `()`, found `Vec<AppObject>`
+   |
+   = note: expected unit type `()`
+                 found struct `Vec<AppObject>`
+
+Some errors have detailed explanations: E0277, E0308.
+For more information about an error, try `rustc --explain E0277`.
+warning: `jiff-sqlx-poc` (bin "jiff-sqlx-poc") generated 1 warning
+error: could not compile `jiff-sqlx-poc` (bin "jiff-sqlx-poc") due to 5 previous errors; 1 warning emitted
