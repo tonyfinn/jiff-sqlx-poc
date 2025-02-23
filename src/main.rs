@@ -18,12 +18,13 @@ struct AppObject {
 
 async fn save(input: &AppObject, db: PgPool) -> Result<(), sqlx::Error> {
     sqlx::query!(
-        "INSERT INTO groups (id, name, created_at) VALUES ($1, $2, $3)", 
-        input.id, 
-        input.name, 
-        input.created_at.to_sqlx())
-        .execute(&db)
-        .await
+        "INSERT INTO groups (id, name, created_at) VALUES ($1, $2, $3)",
+        input.id,
+        input.name,
+        input.created_at.to_sqlx()
+    )
+    .execute(&db)
+    .await
 }
 
 async fn load(db: PgPool) -> Result<Vec<AppObject>, sqlx::Error> {
@@ -34,7 +35,7 @@ async fn load(db: PgPool) -> Result<Vec<AppObject>, sqlx::Error> {
         .map(|db_row| AppObject {
             id: db_row.id,
             name: db_row.name,
-            created_at: db_row.created_at.to_jiff()
+            created_at: db_row.created_at.to_jiff(),
         })
         .collect();
     Ok(result)
@@ -43,12 +44,13 @@ async fn load(db: PgPool) -> Result<Vec<AppObject>, sqlx::Error> {
 #[tokio::main]
 async fn main() {
     let db = PgPoolOptions::new().connect("postgres://").await.unwrap();
-    save(AppObject {
+    let app_obj = AppObject {
         id: "XYZ".into(),
         name: "ABC".into(),
-        created_at: Timestamp::now()
-    }, &db).await.unwrap();
+        created_at: Timestamp::now(),
+    };
+    save(&app_obj, db.clone()).await.unwrap();
 
     let fetched = load(db).await.unwrap();
-    dbg!(fetched)
+    dbg!(fetched);
 }
